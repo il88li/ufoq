@@ -1,0 +1,35 @@
+{% extends "layouts/base.html" %}
+{% block title %}الرئيسية — خيال{% endblock %}
+{% block content %}
+<div class="tabs">
+  <a href="{{ url_for('feed.home', tab='all') }}" class="tab {% if tab=='all' %}active{% endif %}">الكل</a>
+  {% if current_user.is_authenticated %}
+  <a href="{{ url_for('feed.home', tab='following') }}" class="tab {% if tab=='following' %}active{% endif %}">المتابَعون</a>
+  {% endif %}
+</div>
+
+{% if posts %}
+  {% for post in posts %}
+    {% include "components/post_card.html" %}
+  {% endfor %}
+  {% if pagination.pages > 1 %}
+  <div class="pager">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('feed.home', page=pagination.prev_num, tab=tab) }}">السابق</a>
+    {% endif %}
+    <span>{{ pagination.page }} / {{ pagination.pages }}</span>
+    {% if pagination.has_next %}
+    <a href="{{ url_for('feed.home', page=pagination.next_num, tab=tab) }}">التالي</a>
+    {% endif %}
+  </div>
+  {% endif %}
+{% else %}
+  <div class="empty">
+    <i class="ph-light ph-sparkle"></i>
+    <p>{% if tab=='following' %}تابع أشخاصاً لترى منشوراتهم هنا{% else %}لا توجد منشورات بعد — كن أول من ينشر{% endif %}</p>
+    {% if current_user.is_authenticated %}
+    <a class="btn-primary" href="{{ url_for('posts.create') }}">نشر برومبت</a>
+    {% endif %}
+  </div>
+{% endif %}
+{% endblock %}
