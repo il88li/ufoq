@@ -1,0 +1,19 @@
+{% extends "layouts/base.html" %}
+{% block title %}دخول — خيال{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>دخول</h1>
+  {% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+  <form method="post" class="form">
+    <label>البريد أو اسم المستخدم
+      <input name="login" required autofocus>
+    </label>
+    <label>كلمة المرور
+      <input type="password" name="password" required>
+    </label>
+    <label class="check"><input type="checkbox" name="remember" value="1"> تذكرني</label>
+    <button type="submit" class="btn-primary">دخول</button>
+  </form>
+  <p class="muted">ليس لديك حساب؟ <a href="{{ url_for('auth.register') }}">إنشاء حساب</a></p>
+</div>
+{% endblock %}
