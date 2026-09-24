@@ -8,4 +8,60 @@
   <style>
     html,body{margin:0;background:#07070B;color:#F4F4F7;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif}
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}?v=1">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('feed.home') }}">
+      <span class="brand-mark">✦</span>
+      <span>خيال</span>
+    </a>
+    <div class="topbar-actions">
+      {% if current_user.is_authenticated %}
+        <a class="icon-btn" href="{{ url_for('profiles.view', username=current_user.username) }}" aria-label="ملفي">
+          <i class="ph-light ph-user"></i>
+        </a>
+      {% else %}
+        <a class="text-btn" href="{{ url_for('auth.login') }}">دخول</a>
+      {% endif %}
+    </div>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flashes">
+    {% for cat, msg in messages %}
+    <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <main class="page">
+    {% block content %}{% endblock %}
+  </main>
+
+  <nav class="dock" aria-label="التنقل">
+    <a href="{{ url_for('feed.home') }}" class="dock-item {% if request.endpoint and request.endpoint.startswith('feed') %}active{% endif %}">
+      <i class="ph-light ph-house"></i><span>الرئيسية</span>
+    </a>
+    <a href="{{ url_for('search.index') }}" class="dock-item {% if request.endpoint and request.endpoint.startswith('search') %}active{% endif %}">
+      <i class="ph-light ph-magnifying-glass"></i><span>بحث</span>
+    </a>
+    <a href="{{ url_for('posts.create') if current_user.is_authenticated else url_for('auth.login') }}" class="dock-item dock-create">
+      <i class="ph-light ph-plus"></i><span>نشر</span>
+    </a>
+    <a href="{% if current_user.is_authenticated %}{{ url_for('profiles.view', username=current_user.username) }}{% else %}{{ url_for('auth.login') }}{% endif %}" class="dock-item {% if request.endpoint and request.endpoint.startswith('profiles') %}active{% endif %}">
+      <i class="ph-light ph-user"></i><span>حسابي</span>
+    </a>
+    <a href="{{ url_for('settings.index') if current_user.is_authenticated else url_for('auth.login') }}" class="dock-item {% if request.endpoint and request.endpoint.startswith('settings') %}active{% endif %}">
+      <i class="ph-light ph-gear"></i><span>إعدادات</span>
+    </a>
+  </nav>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=1"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
