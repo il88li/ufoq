@@ -22,7 +22,13 @@ load_dotenv()
 
 
 def create_app():
-    app = Flask(__name__)
+    # مسارات مطلقة لضمان عمل static/templates على Vercel
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    app = Flask(
+        __name__,
+        static_folder=os.path.join(base_dir, "static"),
+        template_folder=os.path.join(base_dir, "templates"),
+    )
     app.config.from_object(Config)
 
     db.init_app(app)
@@ -46,38 +52,54 @@ def create_app():
         return decorated
 
     def get_setting():
-        s = SiteSetting.query.first()
-        if not s:
-            s = SiteSetting()
-            db.session.add(s)
-            db.session.commit()
-        return s
+        try:
+            s = SiteSetting.query.first()
+            if not s:
+                s = SiteSetting()
+                db.session.add(s)
+                db.session.commit()
+            return s
+        except Exception as e:
+            print(f"[WARN] get_setting: {e}")
+            # كائن مؤقت بدون DB
+            class _Tmp:
+                status = "on"
+                offline_message = "الموقع تحت الصيانة حالياً."
+                site_name = "خيال"
+                site_tagline = "مكتبة البرومبتات العربية"
+            return _Tmp()
 
     # ── Public routes ────────────────────────────────────────
     @app.route("/")
     def index():
         setting = get_setting()
-        if setting.status == "off":
+        if getattr(setting, "status", "on") == "off":
             return render_template(
                 "offline.html",
                 message=setting.offline_message,
                 site_name=setting.site_name,
             )
 
-        categories = Category.query.order_by(Category.sort_order).all()
-        prompts = (
-            Prompt.query.filter_by(is_active=True)
-            .order_by(Prompt.created_at.desc())
-            .all()
-        )
-        ads = (
-            Ad.query.filter_by(is_active=True)
-            .order_by(Ad.created_at.desc())
-            .limit(5)
-            .all()
-        )
-        total_copies = sum(p.copy_count or 0 for p in prompts)
+        try:
+            categories = Category.query.order_by(Category.sort_order).all()
+            prompts = (
+                Prompt.query.filter_by(is_active=True)
+                .order_by(Prompt.created_at.desc())
+                .all()
+            )
+            ads = (
+                Ad.query.filter_by(is_active=True)
+                .order_by(Ad.created_at.desc())
+                .limit(5)
+                .all()
+            )
+        except Exception as e:
+            print(f"[WARN] index DB: {e}")
+            categories, prompts, ads = [], [], []
+
+        total_copies = sum((p.copy_count or 0) for p in prompts)
         current_cat = request.args.get("cat", "all")
+        cat_labels = {c.name: c.display_name for c in categories}
 
         return render_template(
             "index.html",
@@ -86,6 +108,7 @@ def create_app():
             ads=ads,
             total_copies=total_copies,
             current_cat=current_cat,
+            cat_labels=cat_labels,
             site_name=setting.site_name,
             site_tagline=setting.site_tagline,
         )
