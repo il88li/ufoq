@@ -28,8 +28,12 @@ def create_app():
     db.init_app(app)
 
     with app.app_context():
-        db.create_all()
-        _seed_if_empty()
+        try:
+            db.create_all()
+            _seed_if_empty()
+        except Exception as e:
+            # Vercel: لا تُسقط الدالة عند فشل DB (مسار للقراءة فقط / اتصال)
+            print(f"[WARN] DB init failed: {e}")
 
     # ── Helpers ──────────────────────────────────────────────
     def admin_required(f):
