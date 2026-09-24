@@ -1,0 +1,12 @@
+{% extends "layouts/base.html" %}
+{% block title %}منشور — خيال{% endblock %}
+{% block content %}
+{% set liked_ids = [] %}
+{% set saved_ids = [] %}
+{% include "components/post_card.html" %}
+{% if current_user.is_authenticated and current_user.id == post.author_id %}
+<form method="post" action="{{ url_for('posts.delete', post_id=post.id) }}" onsubmit="return confirm('حذف المنشور؟')">
+  <button type="submit" class="btn-danger">حذف المنشور</button>
+</form>
+{% endif %}
+{% endblock %}
