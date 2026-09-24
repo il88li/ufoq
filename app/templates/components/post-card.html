@@ -1,0 +1,37 @@
+<article class="post-card" data-id="{{ post.id }}">
+  <header class="post-head">
+    <a class="post-author" href="{{ url_for('profiles.view', username=post.author.username) }}">
+      <span class="avatar">{% if post.author.avatar_url %}<img src="{{ post.author.avatar_url }}" alt="">{% else %}{{ post.author.display_name[0] }}{% endif %}</span>
+      <div>
+        <strong>{{ post.author.display_name }}</strong>
+        <small>@{{ post.author.username }}</small>
+      </div>
+    </a>
+    {% if post.category %}<span class="chip">{{ post.category }}</span>{% endif %}
+  </header>
+
+  {% if post.image_url %}
+  <div class="post-media">
+    <img src="{{ post.image_url }}" alt="" loading="lazy">
+  </div>
+  {% endif %}
+
+  <div class="post-body">{{ post.body }}</div>
+
+  <footer class="post-actions">
+    <button type="button" class="action-btn copy-btn" data-id="{{ post.id }}" data-body="{{ post.body|e }}">
+      <i class="ph-light ph-copy"></i>
+      <span class="count">{{ post.copy_count or 0 }}</span>
+    </button>
+    <button type="button" class="action-btn like-btn {% if liked_ids is defined and post.id in liked_ids %}on{% endif %}" data-id="{{ post.id }}">
+      <i class="ph-light ph-heart{% if liked_ids is defined and post.id in liked_ids %}-fill{% endif %}"></i>
+      <span class="count">{{ post.like_count or 0 }}</span>
+    </button>
+    <button type="button" class="action-btn save-btn {% if saved_ids is defined and post.id in saved_ids %}on{% endif %}" data-id="{{ post.id }}">
+      <i class="ph-light ph-bookmark{% if saved_ids is defined and post.id in saved_ids %}-simple-fill{% endif %}"></i>
+    </button>
+    <a class="action-btn" href="{{ url_for('posts.detail', post_id=post.id) }}">
+      <i class="ph-light ph-arrow-left"></i>
+    </a>
+  </footer>
+</article>
