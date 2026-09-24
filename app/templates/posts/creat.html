@@ -1,0 +1,29 @@
+{% extends "layouts/base.html" %}
+{% block title %}نشر — خيال{% endblock %}
+{% block content %}
+<div class="compose-card">
+  <h1>نشر برومبت</h1>
+  {% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+  <form method="post" class="form">
+    <label>نص البرومبت
+      <textarea name="body" rows="8" required placeholder="اكتب البرومبت هنا…"></textarea>
+    </label>
+    <label>رابط صورة (اختياري)
+      <input name="image_url" type="url" placeholder="https://…">
+    </label>
+    <label>التصنيف
+      <select name="category">
+        <option value="general">عام</option>
+        <option value="writing">كتابة</option>
+        <option value="image">صور</option>
+        <option value="code">برمجة</option>
+        <option value="marketing">تسويق</option>
+        <option value="education">تعليم</option>
+        <option value="creative">إبداع</option>
+      </select>
+    </label>
+    <label class="check"><input type="checkbox" name="is_public" value="1" checked> منشور عام</label>
+    <button type="submit" class="btn-primary">نشر</button>
+  </form>
+</div>
+{% endblock %}
