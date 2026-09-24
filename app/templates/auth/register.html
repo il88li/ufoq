@@ -1,0 +1,24 @@
+{% extends "layouts/base.html" %}
+{% block title %}تسجيل — خيال{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>إنشاء حساب</h1>
+  {% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+  <form method="post" class="form">
+    <label>اسم المستخدم
+      <input name="username" required pattern="[a-zA-Z0-9_]{3,40}" placeholder="مثال: ahmed">
+    </label>
+    <label>الاسم المعروض
+      <input name="display_name" placeholder="أحمد">
+    </label>
+    <label>البريد
+      <input type="email" name="email" required>
+    </label>
+    <label>كلمة المرور
+      <input type="password" name="password" required minlength="6">
+    </label>
+    <button type="submit" class="btn-primary">تسجيل</button>
+  </form>
+  <p class="muted">لديك حساب؟ <a href="{{ url_for('auth.login') }}">دخول</a></p>
+</div>
+{% endblock %}
