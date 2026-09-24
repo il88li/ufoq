@@ -1,0 +1,28 @@
+{% extends "layouts/base.html" %}
+{% block title %}{{ profile.display_name }} — خيال{% endblock %}
+{% block content %}
+<section class="profile-head">
+  <span class="avatar lg">{% if profile.avatar_url %}<img src="{{ profile.avatar_url }}" alt="">{% else %}{{ profile.display_name[0] }}{% endif %}</span>
+  <h1>{{ profile.display_name }}</h1>
+  <p class="muted">@{{ profile.username }}</p>
+  {% if profile.bio %}<p class="bio">{{ profile.bio }}</p>{% endif %}
+  <div class="profile-actions">
+    {% if current_user.is_authenticated and current_user.id == profile.id %}
+      <a class="btn-secondary" href="{{ url_for('settings.index') }}">تعديل الملف</a>
+    {% elif current_user.is_authenticated %}
+      <form method="post" action="{{ url_for('profiles.follow', username=profile.username) }}">
+        <button type="submit" class="btn-primary">{% if following %}إلغاء المتابعة{% else %}متابعة{% endif %}</button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+
+<h2 class="section-title">المنشورات</h2>
+{% if posts %}
+  {% for post in posts %}
+    {% include "components/post_card.html" %}
+  {% endfor %}
+{% else %}
+  <div class="empty"><p>لا منشورات بعد</p></div>
+{% endif %}
+{% endblock %}
