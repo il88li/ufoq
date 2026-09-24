@@ -6,11 +6,23 @@
   <meta name="theme-color" content="#07070B">
   <title>{% block title %}خيال{% endblock %}</title>
   <meta name="description" content="{% block description %}مكتبة البرومبتات العربية للذكاء الاصطناعي{% endblock %}">
+  <!-- CSS حرج مضمّن: يمنع الشاشة البيضاء إذا فشل تحميل style.css -->
+  <style>
+    html,body{margin:0;background:#07070B;color:#F4F4F7;font-family:"IBM Plex Sans Arabic",system-ui,sans-serif}
+    .loader{position:fixed;inset:0;z-index:9999;background:#07070B;display:flex;align-items:center;justify-content:center;transition:opacity .4s,visibility .4s}
+    .loader.done{opacity:0;visibility:hidden;pointer-events:none}
+    .loader-inner{text-align:center}
+    .loader-name{font-size:28px;font-weight:700;margin:12px 0}
+    .loader-text{font-size:12px;color:#6E6E7C}
+    .loader-bar{width:120px;height:3px;background:#16161E;border-radius:99px;margin:12px auto;overflow:hidden}
+    .loader-bar-fill{height:100%;width:0;background:linear-gradient(90deg,#FF6A2C,#7C5CFF);animation:lb 1.2s ease forwards}
+    @keyframes lb{to{width:100%}}
+  </style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
   <link rel="icon" href="{{ url_for('static', filename='images/favicon.svg') }}">
   {% block head %}{% endblock %}
 </head>
@@ -35,6 +47,20 @@
       <div class="loader-text">جاري التحميل…</div>
     </div>
   </div>
+  <!-- إخفاء شاشة التحميل حتى لو فشل app.js -->
+  <script>
+    (function () {
+      function hide() {
+        var el = document.getElementById("loader");
+        if (!el) return;
+        el.classList.add("done");
+        setTimeout(function () { try { el.remove(); } catch (e) {} }, 500);
+      }
+      if (document.readyState === "complete") setTimeout(hide, 600);
+      else window.addEventListener("load", function () { setTimeout(hide, 600); });
+      setTimeout(hide, 2500);
+    })();
+  </script>
 
   {% block body %}{% endblock %}
 
@@ -44,7 +70,7 @@
   <audio id="sfx-like" preload="auto" src="{{ url_for('static', filename='sounds/like.wav') }}"></audio>
   <audio id="sfx-click" preload="auto" src="{{ url_for('static', filename='sounds/click.wav') }}"></audio>
 
-  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}?v=2"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
