@@ -54,7 +54,7 @@
       {% endif %}
     </div>
     <div class="card-body">
-      <div class="card-cat">{{ p.category }}</div>
+      <div class="card-cat">{{ cat_labels.get(p.category, p.category) if cat_labels is defined else p.category }}</div>
       <h3 class="card-title">{{ p.title }}</h3>
       {% if p.publisher %}
       <div class="card-author"><i class="ph-light ph-user"></i> {{ p.publisher }}</div>
