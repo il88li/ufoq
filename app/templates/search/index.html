@@ -1,0 +1,45 @@
+{% extends "layouts/base.html" %}
+{% block title %}بحث — خيال{% endblock %}
+{% block content %}
+<form class="search-bar" method="get" action="{{ url_for('search.index') }}">
+  <input type="search" name="q" value="{{ q }}" placeholder="ابحث عن برومبت أو مستخدم…" autofocus>
+  <input type="hidden" name="kind" value="{{ kind }}">
+  <button type="submit" class="btn-primary">بحث</button>
+</form>
+
+<div class="tabs">
+  <a class="tab {% if kind=='posts' %}active{% endif %}" href="{{ url_for('search.index', q=q, kind='posts') }}">منشورات</a>
+  <a class="tab {% if kind=='users' %}active{% endif %}" href="{{ url_for('search.index', q=q, kind='users') }}">مستخدمون</a>
+</div>
+
+{% if q %}
+  {% if kind == 'posts' and posts_page %}
+    {% if posts_page.items %}
+      {% for post in posts_page.items %}
+        {% include "components/post_card.html" %}
+      {% endfor %}
+    {% else %}
+      <div class="empty"><p>لا نتائج لمنشورات «{{ q }}»</p></div>
+    {% endif %}
+  {% elif kind == 'users' and users_page %}
+    {% if users_page.items %}
+      <div class="user-list">
+        {% for u in users_page.items %}
+        <a class="user-row" href="{{ url_for('profiles.view', username=u.username) }}">
+          <span class="avatar">{{ u.display_name[0] }}</span>
+          <div>
+            <strong>{{ u.display_name }}</strong>
+            <small>@{{ u.username }}</small>
+            {% if u.bio %}<p>{{ u.bio }}</p>{% endif %}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty"><p>لا مستخدمين لـ «{{ q }}»</p></div>
+    {% endif %}
+  {% endif %}
+{% else %}
+  <div class="empty"><p>اكتب كلمة للبحث</p></div>
+{% endif %}
+{% endblock %}
