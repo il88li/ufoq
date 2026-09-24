@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07070B">
+  <title>لوحة التحكم — خيال</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-body">
+
+<aside class="sidebar">
+  <div class="side-brand">
+    <span class="side-logo">✦</span>
+    <span>خيال</span>
+  </div>
+  <nav class="side-nav">
+    <a href="#overview" class="side-link active" data-tab="overview"><i class="ph-light ph-chart-bar"></i> نظرة عامة</a>
+    <a href="#prompts" class="side-link" data-tab="prompts"><i class="ph-light ph-note"></i> البرومبتات</a>
+    <a href="#categories" class="side-link" data-tab="categories"><i class="ph-light ph-tag"></i> التصنيفات</a>
+    <a href="#ads" class="side-link" data-tab="ads"><i class="ph-light ph-megaphone"></i> الإعلانات</a>
+    <a href="#settings" class="side-link" data-tab="settings"><i class="ph-light ph-gear"></i> الإعدادات</a>
+  </nav>
+  <div class="side-foot">
+    <a href="{{ url_for('index') }}" target="_blank" class="side-link"><i class="ph-light ph-arrow-square-out"></i> عرض الموقع</a>
+    <a href="{{ url_for('admin_logout') }}" class="side-link danger"><i class="ph-light ph-sign-out"></i> خروج</a>
+  </div>
+</aside>
+
+<main class="admin-main">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-wrap">
+    {% for cat, msg in messages %}
+    <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <!-- Overview -->
+  <section class="tab-panel active" id="panel-overview">
+    <h2 class="page-title">نظرة عامة</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-num">{{ stats.prompts }}</span><span class="stat-label">برومبت</span></div>
+      <div class="stat-card"><span class="stat-num">{{ stats.copies }}</span><span class="stat-label">نسخة</span></div>
+      <div class="stat-card"><span class="stat-num">{{ stats.likes }}</span><span class="stat-label">إعجاب</span></div>
+      <div class="stat-card"><span class="stat-num">{{ stats.categories }}</span><span class="stat-label">تصنيف</span></div>
+      <div class="stat-card"><span class="stat-num">{{ stats.ads }}</span><span class="stat-label">إعلان</span></div>
+    </div>
+  </section>
+
+  <!-- Prompts -->
+  <section class="tab-panel" id="panel-prompts">
+    <div class="panel-head">
+      <h2 class="page-title">البرومبتات</h2>
+      <button type="button" class="btn-accent" onclick="document.getElementById('addPromptForm').classList.toggle('open')">+ إضافة</button>
+    </div>
+
+    <form id="addPromptForm" class="form-card" method="post" action="{{ url_for('admin_add_prompt') }}">
+      <div class="form-row">
+        <label>العنوان<input name="title" required></label>
+        <label>التصنيف
+          <select name="category">
+            {% for c in categories %}<option value="{{ c.name }}">{{ c.display_name }}</option>{% endfor %}
+            <option value="general">عام</option>
+          </select>
+        </label>
+      </div>
+      <label>نص البرومبت<textarea name="prompt_text" rows="5" required></textarea></label>
+      <div class="form-row">
+        <label>رابط الصورة<input name="image_url" placeholder="https://..."></label>
+        <label>الناشر<input name="publisher" value="خيال"></label>
+      </div>
+      <div class="form-row">
+        <label>رابط الناشر<input name="publisher_link"></label>
+        <label>كلمات مفتاحية<input name="keywords"></label>
+      </div>
+      <button type="submit" class="btn-accent">حفظ البرومبت</button>
+    </form>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>العنوان</th><th>التصنيف</th><th>نسخ</th><th>إعجاب</th><th>حالة</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for p in prompts %}
+          <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.title }}</td>
+            <td>{{ p.category }}</td>
+            <td>{{ p.copy_count or 0 }}</td>
+            <td>{{ p.likes or 0 }}</td>
+            <td>{% if p.is_active %}<span class="badge on">نشط</span>{% else %}<span class="badge off">موقوف</span>{% endif %}</td>
+            <td class="actions">
+              <form method="post" action="{{ url_for('admin_delete_prompt', pid=p.id) }}" onsubmit="return confirm('حذف؟')">
+                <button type="submit" class="btn-sm danger">حذف</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="empty-td">لا توجد برومبتات</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="tab-panel" id="panel-categories">
+    <div class="panel-head">
+      <h2 class="page-title">التصنيفات</h2>
+    </div>
+    <form class="form-card open" method="post" action="{{ url_for('admin_add_category') }}">
+      <div class="form-row">
+        <label>المعرّف (إنجليزي)<input name="name" required placeholder="writing"></label>
+        <label>الاسم المعروض<input name="display_name" required placeholder="كتابة"></label>
+      </div>
+      <div class="form-row">
+        <label>أيقونة (Phosphor)<input name="icon" value="ph-tag"></label>
+        <label>الترتيب<input name="sort_order" type="number" value="0"></label>
+      </div>
+      <button type="submit" class="btn-accent">إضافة تصنيف</button>
+    </form>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>المعرّف</th><th>العرض</th><th>ترتيب</th><th></th></tr></thead>
+        <tbody>
+          {% for c in categories %}
+          <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.name }}</td>
+            <td>{{ c.display_name }}</td>
+            <td>{{ c.sort_order }}</td>
+            <td>
+              <form method="post" action="{{ url_for('admin_delete_category', cid=c.id) }}" onsubmit="return confirm('حذف؟')">
+                <button type="submit" class="btn-sm danger">حذف</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Ads -->
+  <section class="tab-panel" id="panel-ads">
+    <div class="panel-head">
+      <h2 class="page-title">الإعلانات</h2>
+      <button type="button" class="btn-accent" onclick="document.getElementById('addAdForm').classList.toggle('open')">+ إضافة</button>
+    </div>
+    <form id="addAdForm" class="form-card" method="post" action="{{ url_for('admin_add_ad') }}">
+      <div class="form-row">
+        <label>العنوان<input name="title" required></label>
+        <label>نص الزر<input name="button_text" value="زيارة"></label>
+      </div>
+      <label>النص<textarea name="text" rows="3" required></textarea></label>
+      <div class="form-row">
+        <label>رابط الصورة<input name="image_url"></label>
+        <label>رابط الزر<input name="button_link" required></label>
+      </div>
+      <div class="form-row">
+        <label>مدة العرض (ث)<input name="duration_seconds" type="number" value="5"></label>
+        <label class="check-label"><input type="checkbox" name="is_mandatory" value="1"> إعلان إلزامي قبل النسخ</label>
+      </div>
+      <button type="submit" class="btn-accent">حفظ الإعلان</button>
+    </form>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>العنوان</th><th>حالة</th><th>إلزامي</th><th></th></tr></thead>
+        <tbody>
+          {% for a in ads %}
+          <tr>
+            <td>{{ a.id }}</td>
+            <td>{{ a.title }}</td>
+            <td>{% if a.is_active %}<span class="badge on">نشط</span>{% else %}<span class="badge off">موقوف</span>{% endif %}</td>
+            <td>{% if a.is_mandatory %}نعم{% else %}لا{% endif %}</td>
+            <td class="actions">
+              <form method="post" action="{{ url_for('admin_toggle_ad', aid=a.id) }}" style="display:inline">
+                <button type="submit" class="btn-sm">تبديل</button>
+              </form>
+              <form method="post" action="{{ url_for('admin_delete_ad', aid=a.id) }}" style="display:inline" onsubmit="return confirm('حذف؟')">
+                <button type="submit" class="btn-sm danger">حذف</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="empty-td">لا توجد إعلانات</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Settings -->
+  <section class="tab-panel" id="panel-settings">
+    <h2 class="page-title">إعدادات الموقع</h2>
+    <form class="form-card open" method="post" action="{{ url_for('admin_settings') }}">
+      <div class="form-row">
+        <label>اسم الموقع<input name="site_name" value="{{ setting.site_name }}"></label>
+        <label>الشعار<input name="site_tagline" value="{{ setting.site_tagline }}"></label>
+      </div>
+      <label>حالة الموقع
+        <select name="status">
+          <option value="on" {% if setting.status=='on' %}selected{% endif %}>مفتوح</option>
+          <option value="off" {% if setting.status=='off' %}selected{% endif %}>صيانة</option>
+        </select>
+      </label>
+      <label>رسالة الصيانة<textarea name="offline_message" rows="3">{{ setting.offline_message }}</textarea></label>
+      <button type="submit" class="btn-accent">حفظ الإعدادات</button>
+    </form>
+  </section>
+</main>
+
+<script>
+document.querySelectorAll('.side-link[data-tab]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const tab = link.dataset.tab;
+    document.querySelectorAll('.side-link').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    history.replaceState(null, '', '#' + tab);
+  });
+});
+const hash = location.hash.replace('#', '');
+if (hash && document.getElementById('panel-' + hash)) {
+  document.querySelector(`.side-link[data-tab="${hash}"]`)?.click();
+}
+</script>
+</body>
+</html>
