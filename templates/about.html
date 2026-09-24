@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}حول — {{ site_name }}{% endblock %}
+
+{% block body %}
+<header class="hdr">
+  <a class="logo" href="{{ url_for('index') }}">
+    <span class="logo-mark"><i class="ph-light ph-sparkle"></i></span>
+    <span class="logo-name">{{ site_name }}</span>
+  </a>
+  <div class="hdr-actions">
+    <a class="ic-btn" href="{{ url_for('index') }}" aria-label="الرئيسية"><i class="ph-light ph-house"></i></a>
+  </div>
+</header>
+
+<main class="about-page">
+  <article class="about-card">
+    <div class="about-icon"><i class="ph-light ph-sparkle"></i></div>
+    <h1>{{ site_name }}</h1>
+    <p class="about-tagline">{{ site_tagline }}</p>
+    <p>
+      <strong>{{ site_name }}</strong> مساحة عربية مصممة لمن يبحث عن برومبتات جاهزة وعالية الجودة.
+      نجمع لك أفضل الصيغ الاحترافية التي تعمل مع أدوات الذكاء الاصطناعي مثل ChatGPT و Claude و Gemini و Midjourney.
+    </p>
+    <p>
+      الهدف بسيط: توفّر وقتك. انسخ البرومبت، عدّله حسب حاجتك، وابدأ بالإبداع فوراً.
+    </p>
+    <div class="about-features">
+      <div class="feat"><i class="ph-light ph-copy"></i><span>نسخ بضغطة واحدة</span></div>
+      <div class="feat"><i class="ph-light ph-magnifying-glass"></i><span>بحث وتصنيف</span></div>
+      <div class="feat"><i class="ph-light ph-heart"></i><span>إعجابات</span></div>
+      <div class="feat"><i class="ph-light ph-moon"></i><span>واجهة داكنة</span></div>
+    </div>
+    <div class="about-divider"></div>
+    <p class="about-mission">نؤمن أن الإبداع يجب أن يكون متاحاً للجميع — باللغة العربية، وبأبسط طريقة ممكنة.</p>
+    <p class="about-version">{{ site_name }} · الإصدار 1.0</p>
+  </article>
+</main>
+
+<nav class="dock" aria-label="التنقل">
+  <a href="{{ url_for('index') }}" class="dock-btn"><i class="ph-light ph-house"></i></a>
+  <a href="{{ url_for('about') }}" class="dock-btn active" aria-current="page"><i class="ph-light ph-info"></i></a>
+</nav>
+{% endblock %}
