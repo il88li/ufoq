@@ -1,0 +1,25 @@
+{% extends "layouts/base.html" %}
+{% block title %}إعدادات — خيال{% endblock %}
+{% block content %}
+<div class="settings-card">
+  <h1>إعدادات الحساب</h1>
+  <form method="post" class="form">
+    <label>الاسم المعروض
+      <input name="display_name" value="{{ current_user.display_name }}">
+    </label>
+    <label>نبذة
+      <textarea name="bio" rows="3" maxlength="300">{{ current_user.bio or '' }}</textarea>
+    </label>
+    <label>رابط الصورة الشخصية
+      <input name="avatar_url" type="url" value="{{ current_user.avatar_url or '' }}" placeholder="https://…">
+    </label>
+    <label class="check">
+      <input type="checkbox" name="is_private" value="1" {% if current_user.is_private %}checked{% endif %}>
+      حساب خاص
+    </label>
+    <button type="submit" class="btn-primary">حفظ</button>
+  </form>
+  <hr>
+  <a class="btn-secondary" href="{{ url_for('auth.logout') }}">تسجيل الخروج</a>
+</div>
+{% endblock %}
